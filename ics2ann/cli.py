@@ -1,6 +1,5 @@
 import csv
 import datetime
-from email.generator import Generator
 import logging
 import re
 import sys
