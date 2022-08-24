@@ -36,6 +36,9 @@ def is_duedate(e:Event) -> bool:
     else:
         return False
 
+def is_availability(e:Event) -> bool:
+    """Test if an event is about something being available"""
+    return " - Available" in e.summary
 
 # def is_hw(event):
 #     return (event['Type'] == 'Deadline' and re.search("(Homework|HW) [0|1-9]+ .*Due",event['Title']))
@@ -43,7 +46,6 @@ def is_duedate(e:Event) -> bool:
 
 def is_exam(e:Event) -> bool:
     return "Exam" in e.summary
-
 
 # def is_academic_calendar(event):
 #     return event['Type'] == 'Academic Calendar'
@@ -65,6 +67,8 @@ def announcements(es:list[Event]) -> Generator[Announcement, None, None]:
     my_date_format = "%A %B %-d"
     my_datetime_format = "%A %B %-d %-I:%M %p"
     for e in es:
+        if is_availability(e):
+            next
         if is_duedate(e):
             a = Announcement(
                     start = previous_monday(e.start.astimezone()).date(),
@@ -73,6 +77,7 @@ def announcements(es:list[Event]) -> Generator[Announcement, None, None]:
                         e.what,
                         e.end.astimezone().strftime(my_datetime_format)))
             yield a
+            next
         if is_exam(e):
             a = Announcement(
                     start = previous_monday(e.start.astimezone(),2).date(),
@@ -81,6 +86,14 @@ def announcements(es:list[Event]) -> Generator[Announcement, None, None]:
                         e.summary,
                         e.start.astimezone().strftime(my_date_format)))
             yield a
+            next
+        # # generic
+        # a = Announcement(
+        #     start = previous_monday(e.start.astimezone(),2).date(),
+        #     end = e.end.astimezone().date(),
+        #     text = e.summary)
+        # yield a
+
 
 
 @click.group()
