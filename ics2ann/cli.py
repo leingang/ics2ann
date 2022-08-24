@@ -3,29 +3,13 @@ import datetime
 import logging
 import re
 import sys
-from typing import Generator
+from typing import Generator, NamedTuple
 
 from pkg_resources import fixup_namespace_packages
 
 import click
 from icalevents.icalevents import events
 from icalendar.cal import Event
-
-class Announcement(object):
-    start = None
-    end = None
-    text = None
-
-    def __init__(self, 
-        start:datetime.date=None, 
-        end:datetime.date=None,
-        text:str=None):
-        self.start = start
-        self.end = end
-        self.text = text
-
-    def __str__(self) -> str:
-        return "{}--{}: {}".format(self.start,self.end,self.text)
 
 
 def is_duedate(e:Event) -> bool:
@@ -43,12 +27,19 @@ def is_availability(e:Event) -> bool:
 # def is_hw(event):
 #     return (event['Type'] == 'Deadline' and re.search("(Homework|HW) [0|1-9]+ .*Due",event['Title']))
 
-
 def is_exam(e:Event) -> bool:
     return "Exam" in e.summary
 
 # def is_academic_calendar(event):
 #     return event['Type'] == 'Academic Calendar'
+
+
+class Announcement(NamedTuple):
+    """a docstring"""
+    start: datetime.date
+    end: datetime.date
+    text: str
+
 
 def previous_monday(dt,weeks=1):
     """Return the datetime which is Monday of a week prior to the given datetime
