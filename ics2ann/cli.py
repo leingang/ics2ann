@@ -5,11 +5,30 @@ import re
 import sys
 from typing import Generator, NamedTuple
 
-from pkg_resources import fixup_namespace_packages
-
 import click
 from icalevents.icalevents import events
 from icalendar.cal import Event
+
+
+class MyEvent(Event):
+    """Add tests to Event class"""
+    _event: Event
+    subject: str
+
+    def __init__(self,e:Event):
+        self._event = e
+
+    @property
+    def start(self) -> datetime.datetime:
+        return self._event.start
+
+    @property
+    def end(self) -> datetime.datetime:
+        return self._event.end
+
+    @property
+    def summary(self) -> str:
+        return self._event.summary
 
 
 def is_duedate(e:Event) -> bool:
@@ -117,10 +136,10 @@ def read_ics(input, output):
     today = datetime.date.today()
     end_date = datetime.date(2022,12,30)
     es = events(input,start=today,end=end_date)
-    # es2 = events(academic_calendar_url,start=today,end=end_date)
+    es2 = [MyEvent(e) for e in es]
     writer = csv.DictWriter(output,['startDate','endDate','announcementText'])
     writer.writeheader()
-    for a in announcements(es):
+    for a in announcements(es2):
         writer.writerow({
             'startDate': a.start.strftime("%Y-%m-%d"),
             'endDate': a.end.strftime("%Y-%m-%d"),
