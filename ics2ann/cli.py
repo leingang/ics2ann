@@ -30,28 +30,27 @@ class MyEvent(Event):
     def summary(self) -> str:
         return self._event.summary
 
+    @property
+    def is_duedate(self) -> bool:
+        if " - Due" in self.summary:
+            (what,rest) = self.summary.split(' - ')
+            self.subject = what
+            return True
+        else:
+            return False
 
-def is_duedate(e:Event) -> bool:
-    if " - Due" in e.summary:
-        (what,rest) = e.summary.split(' - ')
-        e.what = what
-        return True
-    else:
-        return False
+    @property
+    def is_availability(self) -> bool:
+        """Test if an event is about something being available"""
+        return (" - Available" in self.summary or " - Availability Ends" in self.summary)
 
-def is_availability(e:Event) -> bool:
-    """Test if an event is about something being available"""
-    return " - Available" in e.summary
+    @property
+    def is_exam(self) -> bool:
+        return "Exam" in self.summary and not "Period" in self.summary   
 
-# def is_hw(event):
-#     return (event['Type'] == 'Deadline' and re.search("(Homework|HW) [0|1-9]+ .*Due",event['Title']))
-
-def is_exam(e:Event) -> bool:
-    return "Exam" in e.summary
-
-# def is_academic_calendar(event):
-#     return event['Type'] == 'Academic Calendar'
-
+    @property
+    def is_lesson(self) -> bool:
+        return re.match("^§",self.summary)
 
 class Announcement(NamedTuple):
     """a docstring"""
@@ -60,50 +59,45 @@ class Announcement(NamedTuple):
     text: str
 
 
-def previous_monday(dt,weeks=1):
-    """Return the datetime which is Monday of a week prior to the given datetime
-
-    Args:
-        dt: datetime to measure previous to
-        weeks = 1: number of weeks previous
+def previous_monday(dt: datetime.datetime,weeks:int=1) -> datetime.date:
+    """The Monday of the week *weeks* prior to *dt*.
 
     See https://stackoverflow.com/a/19686958/297797
     """
-    return dt - datetime.timedelta(dt.weekday(),weeks=weeks)
+    return (dt - datetime.timedelta(dt.weekday(),weeks=weeks)).date()
 
 
-def announcements(es:list[Event]) -> Generator[Announcement, None, None]:
+def announcements(es:list[MyEvent]) -> Generator[Announcement, None, None]:
     """Generate announcements from a list of events"""
     my_date_format = "%A %B %-d"
     my_datetime_format = "%A %B %-d %-I:%M %p"
     for e in es:
-        if is_availability(e):
-            next
-        if is_duedate(e):
+        start_datetime = e.start.astimezone()
+        end_date = e.start.astimezone().date()
+        if e.is_availability or e.is_lesson:
+            pass
+        elif e.is_duedate:
             a = Announcement(
-                    start = previous_monday(e.start.astimezone()).date(),
-                    end = e.end.astimezone().date(),
+                    start = previous_monday(start_datetime),
+                    end = end_date,
                     text = "{} due {}".format(
-                        e.what,
+                        e.subject,
                         e.end.astimezone().strftime(my_datetime_format)))
             yield a
-            next
-        if is_exam(e):
+        elif e.is_exam:
             a = Announcement(
-                    start = previous_monday(e.start.astimezone(),2).date(),
-                    end = e.end.astimezone().date(),
+                    start = previous_monday(start_datetime,2),
+                    end = end_date,
                     text = "{} {}".format(
                         e.summary,
                         e.start.astimezone().strftime(my_date_format)))
             yield a
-            next
-        # # generic
-        # a = Announcement(
-        #     start = previous_monday(e.start.astimezone(),2).date(),
-        #     end = e.end.astimezone().date(),
-        #     text = e.summary)
-        # yield a
-
+        else: # generic
+            a = Announcement(
+                start = previous_monday(start_datetime,2),
+                end = end_date,
+                text = "{}: {}".format(end_date.strftime(my_date_format),e.summary))
+            yield a
 
 
 @click.group()
@@ -132,7 +126,6 @@ def first_command(example, option):
     help="Write output to FILENAME (default: stdout)")
 def read_ics(input, output):
     click.echo(f"{input=}")
-    academic_calendar_url = "https://www.nyu.edu/feeds/events/ical/group/Academic-Calendar"
     today = datetime.date.today()
     end_date = datetime.date(2022,12,30)
     es = events(input,start=today,end=end_date)
