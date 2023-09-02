@@ -124,7 +124,9 @@ def first_command(example, option):
     click.echo("Here is some output")
 
 
-@cli.command(name="read")
+@cli.command(
+    name="read",
+    help="Read iCal events from INPUT and create Announcements")
 @click.argument("input")
 @click.option("--output","-o",
     type=click.File('w'),
