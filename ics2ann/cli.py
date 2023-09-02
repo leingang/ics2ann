@@ -7,8 +7,7 @@ import icalevents.icalevents as icalevents
 
 from .events import Event
 from .dateutils import end_of_year
-from .announcements import announcements_from_events
-
+from .announcements import announcements_from_events, CsvWriter
 
 
 @click.group()
@@ -36,11 +35,6 @@ def cli():
 def read_ics(input, output, start, end):
     click.echo(f"{input=}")
     events = [Event(e) for e in icalevents.events(input,start=start,end=end)]
-    writer = csv.DictWriter(output,['startDate','endDate','announcementText'])
-    writer.writeheader()
+    writer = CsvWriter(output)
     for a in announcements_from_events(events):
-        writer.writerow({
-            'startDate': a.start.strftime("%Y-%m-%d"),
-            'endDate': a.end.strftime("%Y-%m-%d"),
-            'announcementText': a.text
-        })
+        writer.write(a)
