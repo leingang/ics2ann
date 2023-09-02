@@ -9,6 +9,7 @@ import click
 import icalevents.icalevents as icalevents
 
 from ics2ann.events import Event
+from ics2ann.dateutils import previous_monday, end_of_year
 
 
 class Announcement(NamedTuple):
@@ -16,18 +17,6 @@ class Announcement(NamedTuple):
     start: datetime.date
     end: datetime.date
     text: str
-
-
-def previous_monday(dt: datetime.datetime,weeks:int=1) -> datetime.date:
-    """The Monday of the week *weeks* prior to *dt*.
-
-    See https://stackoverflow.com/a/19686958/297797
-    """
-    return (dt - datetime.timedelta(dt.weekday(),weeks=weeks)).date()
-
-def end_of_year(dt: datetime.datetime) -> datetime.date:
-    """The last day of the year of *dt*"""
-    return datetime.date(dt.year,12,31)
 
 
 def announcements_from_events(es:list[Event]) -> Generator[Announcement, None, None]:
