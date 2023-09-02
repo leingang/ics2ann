@@ -1,55 +1,14 @@
 import csv
 import datetime
 import logging
-import re
-import sys
-from typing import Generator, NamedTuple
 
 import click
 import icalevents.icalevents as icalevents
 
 from ics2ann.events import Event
-from ics2ann.dateutils import previous_monday, end_of_year
+from ics2ann.dateutils import end_of_year
+from ics2ann.announcements import announcements_from_events
 
-
-class Announcement(NamedTuple):
-    """a docstring"""
-    start: datetime.date
-    end: datetime.date
-    text: str
-
-
-def announcements_from_events(es:list[Event]) -> Generator[Announcement, None, None]:
-    """Generate announcements from a list of events"""
-    my_date_format = "%A %B %-d"
-    my_datetime_format = "%A %B %-d %-I:%M %p"
-    for e in es:
-        start_datetime = e.start.astimezone()
-        end_date = e.start.astimezone().date()
-        if e.is_availability or e.is_lesson:
-            pass
-        elif e.is_duedate:
-            a = Announcement(
-                    start = previous_monday(start_datetime),
-                    end = end_date,
-                    text = "{} due {}".format(
-                        e.subject,
-                        e.end.astimezone().strftime(my_datetime_format)))
-            yield a
-        elif e.is_exam:
-            a = Announcement(
-                    start = previous_monday(start_datetime,2),
-                    end = end_date,
-                    text = "{} {}".format(
-                        e.summary,
-                        e.start.astimezone().strftime(my_date_format)))
-            yield a
-        else: # generic
-            a = Announcement(
-                start = previous_monday(start_datetime,2),
-                end = end_date,
-                text = "{}: {}".format(end_date.strftime(my_date_format),e.summary))
-            yield a
 
 
 @click.group()
