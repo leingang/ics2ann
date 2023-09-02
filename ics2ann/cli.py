@@ -5,9 +5,9 @@ import logging
 import click
 import icalevents.icalevents as icalevents
 
-from ics2ann.events import Event
-from ics2ann.dateutils import end_of_year
-from ics2ann.announcements import announcements_from_events
+from .events import Event
+from .dateutils import end_of_year
+from .announcements import announcements_from_events
 
 
 

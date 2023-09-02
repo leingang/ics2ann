@@ -1,8 +1,8 @@
 import datetime
 from typing import Generator, NamedTuple
 
-from ics2ann.events import Event
-from ics2ann.dateutils import previous_monday
+from .events import Event
+from .dateutils import previous_monday
 
 
 class Announcement(NamedTuple):
