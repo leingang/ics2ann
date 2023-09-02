@@ -6,16 +6,16 @@ import sys
 from typing import Generator, NamedTuple
 
 import click
-from icalevents.icalevents import events
-from icalendar.cal import Event
+import icalevents.icalevents as icalevents
+import icalendar.cal as ical
 
 
-class MyEvent(Event):
-    """Add tests to Event class"""
-    _event: Event
+class Event(ical.Event):
+    """Add tests to the icalendar Event class"""
+    _event: ical.Event
     subject: str
 
-    def __init__(self,e:Event):
+    def __init__(self,e:ical.Event):
         self._event = e
 
     @property
@@ -71,7 +71,7 @@ def end_of_year(dt: datetime.datetime) -> datetime.date:
     return datetime.date(dt.year,12,31)
 
 
-def announcements(es:list[MyEvent]) -> Generator[Announcement, None, None]:
+def announcements_from_events(es:list[Event]) -> Generator[Announcement, None, None]:
     """Generate announcements from a list of events"""
     my_date_format = "%A %B %-d"
     my_datetime_format = "%A %B %-d %-I:%M %p"
@@ -128,13 +128,10 @@ def cli():
     help="Find events before this date (default: end of current year)")
 def read_ics(input, output, start, end):
     click.echo(f"{input=}")
-    # today = datetime.date.today()
-    # end_date = datetime.date(2022,12,30)
-    es = events(input,start=start,end=end)
-    es2 = [MyEvent(e) for e in es]
+    events = [Event(e) for e in icalevents.events(input,start=start,end=end)]
     writer = csv.DictWriter(output,['startDate','endDate','announcementText'])
     writer.writeheader()
-    for a in announcements(es2):
+    for a in announcements_from_events(events):
         writer.writerow({
             'startDate': a.start.strftime("%Y-%m-%d"),
             'endDate': a.end.strftime("%Y-%m-%d"),
