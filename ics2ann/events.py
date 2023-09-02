@@ -43,3 +43,7 @@ class Event(ical.Event):
     @property
     def is_lesson(self) -> bool:
         return re.match("^(§|Welcome)",self.summary)
+    
+    @property
+    def is_office_hour(self) -> bool:
+        return re.match("^(Zoom )?Office Hours?$", self.summary)

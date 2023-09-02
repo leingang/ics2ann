@@ -19,7 +19,7 @@ def announcements_from_events(es:list[Event]) -> Generator[Announcement, None, N
     for e in es:
         start_datetime = e.start.astimezone()
         end_date = e.start.astimezone().date()
-        if e.is_availability or e.is_lesson:
+        if e.is_availability or e.is_lesson or e.is_office_hour:
             pass
         elif e.is_duedate:
             a = Announcement(
