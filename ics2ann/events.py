@@ -42,4 +42,4 @@ class Event(ical.Event):
 
     @property
     def is_lesson(self) -> bool:
-        return re.match("^§",self.summary)
+        return re.match("^(§|Welcome)",self.summary)
