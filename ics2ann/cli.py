@@ -110,20 +110,6 @@ def cli():
     "Process an ICS feed to generate announcements CSV"
 
 
-@cli.command(name="command")
-@click.argument(
-    "example"
-)
-@click.option(
-    "-o",
-    "--option",
-    help="An example option",
-)
-def first_command(example, option):
-    "Command description goes here"
-    click.echo("Here is some output")
-
-
 @cli.command(
     name="read",
     help="Read iCal events from INPUT and create Announcements")
