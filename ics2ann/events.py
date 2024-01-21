@@ -2,12 +2,14 @@ import datetime, re
 
 import icalendar.cal as ical
 
+
 class Event(ical.Event):
     """Add tests to the icalendar Event class"""
+
     _event: ical.Event
     subject: str
 
-    def __init__(self,e:ical.Event):
+    def __init__(self, e: ical.Event):
         self._event = e
 
     @property
@@ -25,7 +27,7 @@ class Event(ical.Event):
     @property
     def is_duedate(self) -> bool:
         if " - Due" in self.summary:
-            (what,rest) = self.summary.split(' - ')
+            (what, rest) = self.summary.split(" - ")
             self.subject = what
             return True
         else:
@@ -34,16 +36,24 @@ class Event(ical.Event):
     @property
     def is_availability(self) -> bool:
         """Test if an event is about something being available"""
-        return (" - Available" in self.summary or " - Availability Ends" in self.summary)
+        return " - Available" in self.summary or " - Availability Ends" in self.summary
 
     @property
     def is_exam(self) -> bool:
-        return "Exam" in self.summary and not "Period" in self.summary   
+        return "Exam" in self.summary and not "Period" in self.summary
 
     @property
     def is_lesson(self) -> bool:
-        return re.match("^(§|Welcome)",self.summary)
-    
+        return re.match("^(§|Welcome)", self.summary)
+
     @property
     def is_office_hour(self) -> bool:
         return re.match("^(Zoom )?Office Hours?$", self.summary)
+
+    @property
+    def concerns_prequiz(self) -> bool:
+        return re.match("Pre-Quiz ", self.summary)
+
+    @property
+    def concerns_postquiz(self) -> bool:
+        return re.match("Post-Quiz ", self.summary)
