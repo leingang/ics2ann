@@ -6,7 +6,7 @@ from .dateutils import previous_monday
 
 
 class Announcement(NamedTuple):
-    """a docstring"""
+    """an announcement"""
 
     start: datetime.date
     end: datetime.date
@@ -23,8 +23,12 @@ def announcements_from_events(es: list[Event]) -> Generator[Announcement, None, 
         if e.is_availability or e.is_lesson or e.is_office_hour:
             pass
         elif e.is_duedate:
+            if e.concerns_prequiz or e.concerns_postquiz:
+                announcement_start = start_datetime - datetime.timedelta(days=7)
+            else:
+                announcement_start = previous_monday(start_datetime)
             a = Announcement(
-                start=previous_monday(start_datetime),
+                start=announcement_start,
                 end=end_date,
                 text="{} due {}".format(
                     e.subject, e.end.astimezone().strftime(my_datetime_format)
