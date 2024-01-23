@@ -67,14 +67,14 @@ class CsvWriter(csv.DictWriter):
         super().__init__(f, fieldnames=self._headers)
         self._write_headers = headers
 
-    def write(self, a:Announcement) -> None:
-        if (self._write_headers and not self._header_is_written):
+    def write(self, a: Announcement) -> None:
+        if self._write_headers and not self._header_is_written:
             self.writeheader()
             self._header_is_written = True
-        self.writerow({
-            'startDate': a.start.strftime("%Y-%m-%d"),
-            'endDate': a.end.strftime("%Y-%m-%d"),
-            'announcementText': a.text
-        })
-
-    
+        self.writerow(
+            {
+                "startDate": a.start.strftime("%Y-%m-%d"),
+                "endDate": a.end.strftime("%Y-%m-%d"),
+                "announcementText": a.text,
+            }
+        )

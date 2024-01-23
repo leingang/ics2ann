@@ -16,28 +16,31 @@ def cli():
     "Process an ICS feed to generate announcements CSV"
 
 
-@cli.command(
-    name="read",
-    help="Read iCal events from INPUT and create Announcements")
+@cli.command(name="read", help="Read iCal events from INPUT and create Announcements")
 @click.argument("input")
-@click.option("--output","-o",
-    type=click.File('w'),
+@click.option(
+    "--output",
+    "-o",
+    type=click.File("w"),
     default="-",
-    help="Write output to FILENAME (default: stdout)")
-@click.option("--start",
+    help="Write output to FILENAME (default: stdout)",
+)
+@click.option(
+    "--start",
     type=click.DateTime(),
     default=datetime.date.today().isoformat(),
-    help="Find events after this date (default: today)")
-@click.option("--end",
+    help="Find events after this date (default: today)",
+)
+@click.option(
+    "--end",
     type=click.DateTime(),
     default=end_of_year(datetime.date.today()).isoformat(),
-    help="Find events before this date (default: end of current year)")
-@click.option("--headers/--no-headers",
-    default=True,
-    help="Include the header row")
+    help="Find events before this date (default: end of current year)",
+)
+@click.option("--headers/--no-headers", default=True, help="Include the header row")
 def read_ics(input, output, start, end, headers):
-    click.echo(f"{input=}, {headers=}",err=True)
-    events = [Event(e) for e in icalevents.events(input,start=start,end=end)]
-    writer = CsvWriter(output,headers=headers)
+    click.echo(f"{input=}, {headers=}", err=True)
+    events = [Event(e) for e in icalevents.events(input, start=start, end=end)]
+    writer = CsvWriter(output, headers=headers)
     for a in announcements_from_events(events):
         writer.write(a)

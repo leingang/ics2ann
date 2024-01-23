@@ -4,6 +4,7 @@ import icalendar.cal as ical
 
 class_duration = datetime.timedelta(hours=2)
 
+
 class Event(ical.Event):
     """Add tests to the icalendar Event class"""
 
