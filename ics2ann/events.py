@@ -2,6 +2,7 @@ import datetime, re
 
 import icalendar.cal as ical
 
+class_duration = datetime.timedelta(hours=2)
 
 class Event(ical.Event):
     """Add tests to the icalendar Event class"""
@@ -46,7 +47,7 @@ class Event(ical.Event):
 
     @property
     def is_lesson(self) -> bool:
-        return (self.end - self.start >= datetime.timedelta(hours=2)) and not self.is_exam
+        return (self.end - self.start >= class_duration) and not self.is_exam
 
     @property
     def is_office_hour(self) -> bool:
