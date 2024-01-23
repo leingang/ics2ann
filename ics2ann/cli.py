@@ -32,9 +32,12 @@ def cli():
     type=click.DateTime(),
     default=end_of_year(datetime.date.today()).isoformat(),
     help="Find events before this date (default: end of current year)")
-def read_ics(input, output, start, end):
-    click.echo(f"{input=}")
+@click.option("--headers/--no-headers",
+    default=True,
+    help="Include the header row")
+def read_ics(input, output, start, end, headers):
+    click.echo(f"{input=}, {headers=}",err=True)
     events = [Event(e) for e in icalevents.events(input,start=start,end=end)]
-    writer = CsvWriter(output)
+    writer = CsvWriter(output,headers=headers)
     for a in announcements_from_events(events):
         writer.write(a)
