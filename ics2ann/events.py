@@ -40,11 +40,13 @@ class Event(ical.Event):
 
     @property
     def is_exam(self) -> bool:
-        return "Exam" in self.summary and not "Period" in self.summary
+        return ("Exam" in self.summary and not "Period" in self.summary) or (
+            "Quiz" in self.summary
+        )
 
     @property
     def is_lesson(self) -> bool:
-        return re.match("^(§|Welcome)", self.summary)
+        return (self.end - self.start >= datetime.timedelta(hours=2)) and not self.is_exam
 
     @property
     def is_office_hour(self) -> bool:
@@ -52,7 +54,7 @@ class Event(ical.Event):
 
     @property
     def concerns_prequiz(self) -> bool:
-        return re.match("Pre-Quiz ", self.summary)
+        return "Pre-Quiz" in self.summary or "Survey" in self.summary
 
     @property
     def concerns_postquiz(self) -> bool:

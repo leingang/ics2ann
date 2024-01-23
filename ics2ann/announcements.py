@@ -20,7 +20,7 @@ def announcements_from_events(es: list[Event]) -> Generator[Announcement, None, 
     for e in es:
         start_datetime = e.start.astimezone()
         end_date = e.start.astimezone().date()
-        if e.is_availability or e.is_lesson or e.is_office_hour:
+        if e.is_availability or e.is_office_hour:
             pass
         elif e.is_duedate:
             if e.concerns_prequiz or e.concerns_postquiz:
@@ -44,6 +44,8 @@ def announcements_from_events(es: list[Event]) -> Generator[Announcement, None, 
                 ),
             )
             yield a
+        elif e.is_lesson:
+            pass
         else:  # generic
             a = Announcement(
                 start=previous_monday(start_datetime, 2),
