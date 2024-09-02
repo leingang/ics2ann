@@ -31,7 +31,7 @@ setup(
         [console_scripts]
         ics2ann=ics2ann.cli:cli
     """,
-    install_requires=["click"],
+    install_requires=["click", "icalevents"],
     extras_require={
         "test": ["pytest"]
     },
