@@ -52,7 +52,7 @@ class Event(ical.Event):
 
     @property
     def is_office_hour(self) -> bool:
-        return re.match("^(Zoom )?Office Hours?$", self.summary)
+        return re.match("^(Zoom|Online )?Office Hours?$", self.summary)
 
     @property
     def concerns_prequiz(self) -> bool:
