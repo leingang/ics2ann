@@ -9,9 +9,12 @@ Process an ICS feed to generate announcements CSV
 
 ## Installation
 
-Install this tool using `pip`:
+Install this tool using `pipx`:
 
-    pip install ics2ann
+    pipx install ics2ann
+
+This will install a virtual environment and add the `ics2ann` script to your
+path.
 
 ## Usage
 
