@@ -7,7 +7,7 @@ import icalevents.icalevents as icalevents
 
 from .events import Event
 from .dateutils import end_of_year
-from .announcements import announcements_from_events, CsvWriter
+from .announcements import announcements_from_events, CsvWriter, TexWriter
 
 
 @click.group()
@@ -26,6 +26,13 @@ def cli():
     help="Write output to FILENAME (default: stdout)",
 )
 @click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["csv", "tex"], case_sensitive=False),
+    default="csv",
+    help="Output file format (default:csv)",
+)
+@click.option(
     "--start",
     type=click.DateTime(),
     default=datetime.date.today().isoformat(),
@@ -38,9 +45,11 @@ def cli():
     help="Find events before this date (default: end of current year)",
 )
 @click.option("--headers/--no-headers", default=True, help="Include the header row")
-def read_ics(input, output, start, end, headers):
+def read_ics(input, output, format, start, end, headers):
     click.echo(f"{input=}, {headers=}", err=True)
     events = [Event(e) for e in icalevents.events(input, start=start, end=end)]
-    writer = CsvWriter(output, headers=headers)
-    for a in announcements_from_events(events):
+    writer_classes = {"tex": TexWriter, "csv": CsvWriter}
+    writer_class = writer_classes[format]
+    writer = writer_class(output, headers=headers)
+    for a in sorted(announcements_from_events(events), key=lambda x: (x.end, x.text)):
         writer.write(a)
