@@ -78,3 +78,23 @@ class CsvWriter(csv.DictWriter):
                 "announcementText": a.text,
             }
         )
+
+class TexWriter(object):
+    """LaTeX writer for a sequence of announcements"""
+
+    _header_is_written = False
+    _write_headers = True
+
+    def __init__(self, f: IO, headers: bool = True) -> None:        
+        self.f = f
+        self._write_headers = headers
+
+    def write(self, a: Announcement) -> None:
+        f = self.f
+        if self._write_headers and not self._header_is_written:
+            f.write(r"\DTLnewdb{announcements}" + "\n")
+            self._header_is_written = True
+        f.write(r"\DTLnewrow{announcements}" + "\n")
+        f.write(r"\DTLnewdbentry{startDate}{" + a.start.strftime("%Y-%m-%d") + r"}" + "\n")
+        f.write(r"\DTLnewdbentry{endDate}{" + a.end.strftime("%Y-%m-%d") + r"}" + "\n")
+        f.write(r"\DTLnewdbentry{announcementText}{" + a.text + r"}" + "\n")
