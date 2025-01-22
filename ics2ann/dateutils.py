@@ -56,7 +56,7 @@ def format_time_interval(start: datetime, end: datetime) -> str:
 
         >>> start = datetime(2025, 1, 21, 23, 30)
         >>> end = datetime(2025, 1, 22, 1, 30)
-        >>> format_time_interval(start, end)
+        >>> format_time_interval(start, end) # doctest: +IGNORE_EXCEPTION_DETAIL
         Traceback (most recent call last):
         ...
         DifferentDaysError: Start and end times must be on the same day.
