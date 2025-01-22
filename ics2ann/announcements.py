@@ -1,8 +1,12 @@
 import csv, datetime
-from typing import Generator, NamedTuple, IO
+from typing import Generator, List, NamedTuple, IO
+import re
+
+from validators import url as is_url
 
 from .events import Event
-from .dateutils import previous_monday
+from .dateutils import previous_monday, format_time_interval
+
 
 
 class Announcement(NamedTuple):
@@ -11,6 +15,27 @@ class Announcement(NamedTuple):
     start: datetime.date
     end: datetime.date
     text: str
+
+def officehours_from_events(es: List[Event]) -> Generator[Announcement, None, None]:
+    """Generate office hour listings from a list of events"""
+    for e in [ee for ee in es if ee.is_office_hour]:
+        start_datetime = e.start.astimezone()
+        end_datetime = e.end.astimezone()
+        end_date = end_datetime.date()
+        announcement_start = start_datetime - datetime.timedelta(days=7)
+        match = re.search(r"CIWW \d+",e.location)
+        if match:
+            location = "in " + match.group()
+        elif is_url(e.location):
+            location = "online"
+        else:
+            location = "in " + e.location
+        a = Announcement(
+            start=announcement_start,
+            end=end_date,
+            text=format_time_interval(start_datetime,end_datetime) + " " +location
+        )
+        yield a
 
 
 def announcements_from_events(es: list[Event]) -> Generator[Announcement, None, None]:
@@ -79,22 +104,26 @@ class CsvWriter(csv.DictWriter):
             }
         )
 
+
 class TexWriter(object):
     """LaTeX writer for a sequence of announcements"""
 
     _header_is_written = False
     _write_headers = True
 
-    def __init__(self, f: IO, headers: bool = True) -> None:        
+    def __init__(self, f: IO, headers: bool = True) -> None:
         self.f = f
         self._write_headers = headers
 
     def write(self, a: Announcement) -> None:
         f = self.f
         if self._write_headers and not self._header_is_written:
+            f.write(r"\usepackage{datatool}" + "\n")
             f.write(r"\DTLnewdb{announcements}" + "\n")
             self._header_is_written = True
         f.write(r"\DTLnewrow{announcements}" + "\n")
-        f.write(r"\DTLnewdbentry{startDate}{" + a.start.strftime("%Y-%m-%d") + r"}" + "\n")
-        f.write(r"\DTLnewdbentry{endDate}{" + a.end.strftime("%Y-%m-%d") + r"}" + "\n")
-        f.write(r"\DTLnewdbentry{announcementText}{" + a.text + r"}" + "\n")
+        f.write(
+            r"\DTLnewdbentry{announcements}{startDate}{" + a.start.strftime("%Y-%m-%d") + r"}" + "\n"
+        )
+        f.write(r"\DTLnewdbentry{announcements}{endDate}{" + a.end.strftime("%Y-%m-%d") + r"}" + "\n")
+        f.write(r"\DTLnewdbentry{announcements}{announcementText}{" + a.text + r"}" + "\n")

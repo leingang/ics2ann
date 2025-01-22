@@ -25,6 +25,10 @@ class Event(ical.Event):
     @property
     def summary(self) -> str:
         return self._event.summary
+    
+    @property
+    def location(self) -> str:
+        return self._event.location
 
     @property
     def is_duedate(self) -> bool:
