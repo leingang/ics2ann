@@ -7,7 +7,12 @@ import icalevents.icalevents as icalevents
 
 from .events import Event
 from .dateutils import end_of_year
-from .announcements import announcements_from_events, officehours_from_events, CsvWriter, TexWriter
+from .announcements import (
+    announcements_from_events,
+    officehours_from_events,
+    CsvWriter,
+    TexWriter,
+)
 
 
 @click.group()
@@ -55,7 +60,10 @@ def read_ics(input, output, format, start, end, headers):
         writer.write(a)
 
 
-@cli.command(name="readoh", help="Read Office Hours iCal events from INPUT and create Announcements")
+@cli.command(
+    name="readoh",
+    help="Read Office Hours iCal events from INPUT and create Announcements",
+)
 @click.argument("input")
 @click.option(
     "--output",

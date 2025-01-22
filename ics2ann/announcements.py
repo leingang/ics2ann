@@ -8,13 +8,13 @@ from .events import Event
 from .dateutils import previous_monday, format_time_interval
 
 
-
 class Announcement(NamedTuple):
     """an announcement"""
 
     start: datetime.date
     end: datetime.date
     text: str
+
 
 def officehours_from_events(es: List[Event]) -> Generator[Announcement, None, None]:
     """Generate office hour listings from a list of events"""
@@ -23,7 +23,7 @@ def officehours_from_events(es: List[Event]) -> Generator[Announcement, None, No
         end_datetime = e.end.astimezone()
         end_date = end_datetime.date()
         announcement_start = start_datetime - datetime.timedelta(days=7)
-        match = re.search(r"CIWW \d+",e.location)
+        match = re.search(r"CIWW \d+", e.location)
         if match:
             location = "in " + match.group()
         elif is_url(e.location):
@@ -33,7 +33,7 @@ def officehours_from_events(es: List[Event]) -> Generator[Announcement, None, No
         a = Announcement(
             start=announcement_start,
             end=end_date,
-            text=format_time_interval(start_datetime,end_datetime) + " " +location
+            text=format_time_interval(start_datetime, end_datetime) + " " + location,
         )
         yield a
 
@@ -123,7 +123,17 @@ class TexWriter(object):
             self._header_is_written = True
         f.write(r"\DTLnewrow{announcements}" + "\n")
         f.write(
-            r"\DTLnewdbentry{announcements}{startDate}{" + a.start.strftime("%Y-%m-%d") + r"}" + "\n"
+            r"\DTLnewdbentry{announcements}{startDate}{"
+            + a.start.strftime("%Y-%m-%d")
+            + r"}"
+            + "\n"
         )
-        f.write(r"\DTLnewdbentry{announcements}{endDate}{" + a.end.strftime("%Y-%m-%d") + r"}" + "\n")
-        f.write(r"\DTLnewdbentry{announcements}{announcementText}{" + a.text + r"}" + "\n")
+        f.write(
+            r"\DTLnewdbentry{announcements}{endDate}{"
+            + a.end.strftime("%Y-%m-%d")
+            + r"}"
+            + "\n"
+        )
+        f.write(
+            r"\DTLnewdbentry{announcements}{announcementText}{" + a.text + r"}" + "\n"
+        )

@@ -13,11 +13,12 @@ def end_of_year(dt: datetime) -> date:
     """The last day of the year of *dt*"""
     return date(dt.year, 12, 31)
 
-from datetime import datetime
 
 class DifferentDaysError(Exception):
     """Custom exception raised when the datetime objects are on different days."""
+
     pass
+
 
 def format_time_interval(start: datetime, end: datetime) -> str:
     """
@@ -25,7 +26,7 @@ def format_time_interval(start: datetime, end: datetime) -> str:
 
     The format should follow the pattern: "Day, Month Day: start_time-end_time period",
     where the period (a.m. or p.m.) is applied after the end time. If the start time is
-    before noon and the end time is after noon, the first time is labeled "a.m." and the 
+    before noon and the end time is after noon, the first time is labeled "a.m." and the
     second time is labeled "p.m."
 
     Raises:
@@ -64,14 +65,14 @@ def format_time_interval(start: datetime, end: datetime) -> str:
     # Check if the start and end dates are on different days
     if start.date() != end.date():
         raise DifferentDaysError("Start and end times must be on the same day.")
-    
+
     # Day of the week and date formatting
     date_format = start.strftime("%A, %B %-d")
-    
+
     # Time formatting
     start_time = start.strftime("%-I:%M")
     end_time = end.strftime("%-I:%M")
-    
+
     # Determine if times cross noon
     start_am_pm = "a.m." if start.hour < 12 else "p.m."
     end_am_pm = "a.m." if end.hour < 12 else "p.m."
@@ -81,11 +82,13 @@ def format_time_interval(start: datetime, end: datetime) -> str:
         time_range = f"{start_time}-{end_time} {start_am_pm}"
     else:
         time_range = f"{start_time} {start_am_pm}-{end_time} {end_am_pm}"
-    
+
     # Assemble the final output
     return f"{date_format}: {time_range}".strip()
+
 
 # To run doctests in Python, you can execute:
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()
