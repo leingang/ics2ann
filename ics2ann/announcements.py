@@ -6,6 +6,7 @@ from validators import url as is_url
 
 from .events import Event
 from .dateutils import previous_monday, format_time_interval
+from .nyudatetime import rebrand_nyu_datetime
 
 
 class Announcement(NamedTuple):
@@ -19,8 +20,8 @@ class Announcement(NamedTuple):
 def officehours_from_events(es: List[Event]) -> Generator[Announcement, None, None]:
     """Generate office hour listings from a list of events"""
     for e in [ee for ee in es if ee.is_office_hour]:
-        start_datetime = e.start.astimezone()
-        end_datetime = e.end.astimezone()
+        start_datetime = rebrand_nyu_datetime(e.start.astimezone())
+        end_datetime = rebrand_nyu_datetime(e.end.astimezone())
         end_date = end_datetime.date()
         announcement_start = start_datetime - datetime.timedelta(days=7)
         match = re.search(r"CIWW \d+", e.location)
@@ -43,8 +44,9 @@ def announcements_from_events(es: list[Event]) -> Generator[Announcement, None, 
     my_date_format = "%A %B %-d"
     my_datetime_format = "%A %B %-d %-I:%M %p"
     for e in es:
-        start_datetime = e.start.astimezone()
-        end_date = e.start.astimezone().date()
+        start_datetime = rebrand_nyu_datetime(e.start.astimezone())
+        end_datetime = rebrand_nyu_datetime(e.end.astimezone())
+        end_date = end_datetime.date()
         if e.is_availability or e.is_office_hour:
             pass
         elif e.is_duedate:
