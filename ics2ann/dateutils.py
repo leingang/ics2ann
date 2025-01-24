@@ -20,74 +20,75 @@ class DifferentDaysError(Exception):
     pass
 
 
-def format_time_interval(start: datetime, end: datetime) -> str:
+def format_time_interval(
+    start: datetime,
+    end: datetime,
+    date_format: str = "%A, %B %d",
+    time_format: str = "%-I:%M %p",
+    start_time_format: str = "%-I:%M",
+) -> str:
     """
-    Format the time interval between two datetime objects into a specific string format.
+    Formats the time interval between two datetime objects into a string.
 
-    The format should follow the pattern: "Day, Month Day: start_time-end_time period",
-    where the period (a.m. or p.m.) is applied after the end time. If the start time is
-    before noon and the end time is after noon, the first time is labeled "a.m." and the
-    second time is labeled "p.m."
+    The date and time formats can be customized using the `date_format`, `time_format`, and `start_time_format` keyword arguments.
 
-    Raises:
-        DifferentDaysError: If the start and end datetimes belong to different days.
+    The output format is "{formatted_date}: {formatted_start_time}–{formatted_end_time}".
+    If the start and end times share the same period (am/pm), the start time is formatted using `start_time_format`,
+    and the period is only added to the end time.
 
-    Args:
-        start (datetime): The start datetime
-        end (datetime): The end datetime
+    Parameters:
+    start (datetime): The start time.
+    end (datetime): The end time.
+    date_format (str): The format for the date. Default is "Wednesday, January 22" format ("%A, %B %d").
+    time_format (str): The format for the end time. Default is "2:00 pm" format ("%I:%M %p").
+    start_time_format (str): The format for the start time if the start and end have the same period. Default is "%-I:%M".
 
     Returns:
-        str: A formatted string representing the time interval.
+    str: A string representing the formatted time interval.
+
+    Raises:
+    DifferentDaysError: If the two datetime objects are not on the same day.
 
     Examples:
-        >>> start = datetime(2025, 1, 21, 10, 0)
-        >>> end = datetime(2025, 1, 21, 15, 0)
-        >>> format_time_interval(start, end)
-        'Tuesday, January 21: 10:00 a.m.-3:00 p.m.'
+    >>> start = datetime(2025, 1, 22, 14, 0)
+    >>> end = datetime(2025, 1, 22, 15, 0)
+    >>> format_time_interval(start, end)
+    'Wednesday, January 22: 2:00–3:00 PM'
 
-        >>> start = datetime(2025, 1, 21, 14, 0)
-        >>> end = datetime(2025, 1, 21, 16, 30)
-        >>> format_time_interval(start, end)
-        'Tuesday, January 21: 2:00-4:30 p.m.'
+    >>> start = datetime(2025, 1, 22, 10, 30)
+    >>> end = datetime(2025, 1, 22, 14, 0)
+    >>> format_time_interval(start, end)
+    'Wednesday, January 22: 10:30 AM–2:00 PM'
 
-        >>> start = datetime(2025, 1, 21, 9, 30)
-        >>> end = datetime(2025, 1, 21, 11, 0)
-        >>> format_time_interval(start, end)
-        'Tuesday, January 21: 9:30-11:00 a.m.'
-
-        >>> start = datetime(2025, 1, 21, 23, 30)
-        >>> end = datetime(2025, 1, 22, 1, 30)
-        >>> format_time_interval(start, end) # doctest: +IGNORE_EXCEPTION_DETAIL
-        Traceback (most recent call last):
-        ...
-        DifferentDaysError: Start and end times must be on the same day.
+    >>> start = datetime(2025, 1, 22, 10, 0)
+    >>> end = datetime(2025, 1, 23, 11, 0)  # Different days
+    >>> format_time_interval(start, end) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    ...
+    DifferentDaysError: Start and end times must be on the same day.
     """
     # Check if the start and end dates are on different days
     if start.date() != end.date():
         raise DifferentDaysError("Start and end times must be on the same day.")
 
-    # Day of the week and date formatting
-    date_format = start.strftime("%A, %B %-d")
+    # Format the date and times
+    formatted_date = start.strftime(date_format)
+    formatted_end_time = end.strftime(time_format).lstrip("0")  # remove leading zero
 
-    # Time formatting
-    start_time = start.strftime("%-I:%M")
-    end_time = end.strftime("%-I:%M")
+    # Determine if start and end times share the same period (am/pm)
+    start_period = start.strftime("%p").lower()
+    end_period = end.strftime("%p").lower()
 
-    # Determine if times cross noon
-    start_am_pm = "a.m." if start.hour < 12 else "p.m."
-    end_am_pm = "a.m." if end.hour < 12 else "p.m."
-
-    # Build the formatted time range
-    if start_am_pm == end_am_pm:
-        time_range = f"{start_time}-{end_time} {start_am_pm}"
+    if start_period == end_period:
+        # If they share the same period, use the start_time_format for start time
+        formatted_start_time = start.strftime(start_time_format).lstrip("0")
     else:
-        time_range = f"{start_time} {start_am_pm}-{end_time} {end_am_pm}"
+        # Otherwise, use the time_format for both
+        formatted_start_time = start.strftime(time_format).lstrip("0")
 
-    # Assemble the final output
-    return f"{date_format}: {time_range}".strip()
+    return f"{formatted_date}: {formatted_start_time}–{formatted_end_time}"
 
 
-# To run doctests in Python, you can execute:
 if __name__ == "__main__":
     import doctest
 
