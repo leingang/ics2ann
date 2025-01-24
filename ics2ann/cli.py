@@ -1,6 +1,4 @@
-import csv
-import datetime
-import logging
+from datetime import date
 
 import click
 import icalevents.icalevents as icalevents
@@ -40,13 +38,13 @@ def cli():
 @click.option(
     "--start",
     type=click.DateTime(),
-    default=datetime.date.today().isoformat(),
+    default=date.today().isoformat(),
     help="Find events after this date (default: today)",
 )
 @click.option(
     "--end",
     type=click.DateTime(),
-    default=end_of_year(datetime.date.today()).isoformat(),
+    default=end_of_year(date.today()).isoformat(),
     help="Find events before this date (default: end of current year)",
 )
 @click.option("--headers/--no-headers", default=True, help="Include the header row")
@@ -82,13 +80,13 @@ def read_ics(input, output, format, start, end, headers):
 @click.option(
     "--start",
     type=click.DateTime(),
-    default=datetime.date.today().isoformat(),
+    default=date.today().isoformat(),
     help="Find events after this date (default: today)",
 )
 @click.option(
     "--end",
     type=click.DateTime(),
-    default=end_of_year(datetime.date.today()).isoformat(),
+    default=end_of_year(date.today()).isoformat(),
     help="Find events before this date (default: end of current year)",
 )
 @click.option("--headers/--no-headers", default=True, help="Include the header row")
